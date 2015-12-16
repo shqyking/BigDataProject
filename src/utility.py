@@ -1,5 +1,6 @@
 import csv
 import random
+import os
 
 '''
 Splits the input_file to testing and training set. It only write down the row ID of testing data
@@ -10,7 +11,7 @@ def split_to_train_test(input_file, output_folder, test_percentage, num_copies):
 	row_count = count_num_of_lines(input_file)
 	for i in range(num_copies):
 		test_id_list = random.sample(xrange(1, row_count), int((row_count - 1)* test_percentage))
-		output_file = output_folder + "/test" + str(i) + ".txt"
+		output_file = os.path.join(output_folder, 'testID' + str(i) + '.txt')
 		with open(output_file, 'w') as f:
 			for test_id in test_id_list:
 				f.write(str(test_id) + '\n')
@@ -32,3 +33,4 @@ def read_id_from_file(input_file):
 		for number in f:
 			id_set.add(number.split()[0])
 	return id_set
+
