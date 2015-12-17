@@ -45,7 +45,9 @@ if __name__ == "__main__":
 	for i in range(10):
 		train, train_target, test, test_target, rf = train_classifier(dataset, test_ids[i])
 		predicted = rf.predict_proba(test)
+		
 		predict_score[i] = log_loss(test_target, predicted, eps=1e-15, normalize=True)
+		savetxt('data/prediction/randomForest' + str(i) + '.csv', predicted, delimiter=',', fmt='%f', header="0,1,2,3,4,5,6,7,8", comments='')
 		avg += predict_score[i]
 
 	print predict_score
