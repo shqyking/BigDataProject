@@ -1,6 +1,12 @@
 import csv
 import random
 import os
+import numpy as np
+import pandas as pd
+import gc
+from sklearn.metrics import log_loss
+from sklearn.calibration import CalibratedClassifierCV
+from sklearn.cross_validation import StratifiedKFold, StratifiedShuffleSplit
 
 '''
 Generate test set IDs. It only write down the row ID of testing data
@@ -64,11 +70,67 @@ def generate_train_test_data(raw_folder, test_id_folder):
 			a = csv.writer(f, delimiter=',')
 			a.writerows(test_labels)
 
+def load_data(train_file, test_file):
+    train = pd.read_csv(train_file)
+    train_labels = [int(v[-1])-1 for v in train.target.values]
+    train = train.drop('id', axis=1)
+    train = train.drop('target', axis=1)
+
+    test = pd.read_csv(test_file)
+    test = test.drop('id', axis=1)
+
+    return np.array(train, dtype=float), np.array(train_labels), np.array(test, dtype=float)
+
+def save_prediction(output_file, predictions):
+    submission = pd.DataFrame(predictions)
+    submission.to_csv(output_file, index=False)
+
+def get_cv(y, n_folds=5):
+    return StratifiedKFold(y, n_folds=n_folds, random_state=23)
+
+def calculate_logloss(prediction_file, label_file):
+	y_true = []
+	with open(label_file, 'r') as f:
+		for line in f:
+			y_true.append(int(line))
+	y_predict = []
+	with open(prediction_file, 'r') as f:
+		tmp = f.readline()
+		for line in f:
+			y_predict.append([float(x) for x in line.split(',')])
+	return log_loss(y_true, y_predict)
 
 
+def make_blender_cv(classifier, x, y, calibrate=False):
+    skf = StratifiedKFold(y, n_folds=5, random_state=23)
+    scores, predictions = [], None
+    for train_index, test_index in skf:
+        if calibrate:
+            # Make training and calibration
+            calibrated_classifier = CalibratedClassifierCV(classifier, method='isotonic', cv=get_cv(y[train_index]))
+            fitted_classifier = calibrated_classifier.fit(x[train_index, :], y[train_index])
+        else:
+            fitted_classifier = classifier.fit(x[train_index, :], y[train_index])
+        preds = fitted_classifier.predict_proba(x[test_index, :])
 
+        # Free memory
+        calibrated_classifier, fitted_classifier = None, None
+        gc.collect()
 
+        scores.append(log_loss(y[test_index], preds))
+        predictions = np.append(predictions, preds, axis=0) if predictions is not None else preds
+    return scores, predictions
 
+def get_xgboost_score():
+	scores = []
+	for i in range(10):
+		pred_file = os.path.join('data', 'prediction', 'xgboost' + str(i) + '.csv')
+		label_file = os.path.join('data', 'raw', 'label' + str(i) + '.csv')
+		scores.append(calculate_logloss(pred_file, label_file))
+	print "Average score of xgboost is " + str(np.mean(scores))
+	print "Standard deviation of xgboost is " + str(np.std(scores))
+
+get_xgboost_score()
 
 
 
