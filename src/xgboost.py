@@ -5,15 +5,11 @@ import os
 from hyperopt import fmin, hp, tpe
 
 from sklearn.base import BaseEstimator
-from sklearn.svm import LinearSVC
-from sklearn import preprocessing
 import sys
 import os.path
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
 import utility as utils
-
-global MODE
 
 class XGBoost(BaseEstimator):
     def __init__(self, max_iterations=50, max_depth=9, min_child_weight=4, row_subsample=.75,
@@ -79,20 +75,15 @@ def run(train_file, test_file, output_file):
     clf = XGBoost(max_iterations=300, max_depth=12, min_child_weight=4.9208250938262745,
                   row_subsample=.9134478530382129, min_loss_reduction=.5132278416508804,
                   column_subsample=.730128689911957, step_size=.05)
-    if MODE == 'cv':
-        scores, predictions = utils.make_blender_cv(clf, train, labels, calibrate=False)
-        print 'CV:', scores, 'Mean log loss:', np.mean(scores)
-    else:
-        clf.fit(train, labels)
-        predictions = clf.predict_proba(test)
-        utils.save_prediction(output_file, predictions)
+    clf.fit(train, labels)
+    predictions = clf.predict_proba(test)
+    utils.save_prediction(output_file, predictions)
 
 if __name__ == '__main__':
     for i in range(10):
         train_file = os.path.join('data', 'raw', 'train' + str(i) + '.csv')
         test_file = os.path.join('data', 'raw', 'test' + str(i) + '.csv')
         output_file = os.path.join('data', 'prediction', 'xgboost' + str(i) + '.csv')
-        MODE = 'submission'
         run(train_file, test_file, output_file)
         #run('data/raw/train.csv', 'data/raw/test.csv', 'data/prediction/xgboost.csv')
 
