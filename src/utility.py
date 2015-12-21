@@ -139,19 +139,29 @@ def get_neural_network_score():
 	print "Average score of neural network is " + str(np.mean(scores))
 	print "Standard deviation of neural network is " + str(np.std(scores))
 
+def get_random_forest_score():
+	scores = []
+	for i in range(10):
+		pred_file = os.path.join('data', 'prediction', 'calibratedRandomForest' + str(i) + '.csv')
+		label_file = os.path.join('data', 'raw', 'label' + str(i) + '.csv')
+		scores.append(calculate_logloss(pred_file, label_file))
+	print "Average score of calibrated random forest is " + str(np.mean(scores))
+	print "Standard deviation of calibrated random forest is " + str(np.std(scores))
+
 def get_commbination_score():
 	scores = []
 	for i in range(10):
 		pred_file = os.path.join('data', 'prediction', 'com' + str(i) + '.csv')
 		label_file = os.path.join('data', 'raw', 'label' + str(i) + '.csv')
 		scores.append(calculate_logloss(pred_file, label_file))
-	print "Average score of neural network is " + str(np.mean(scores))
-	print "Standard deviation of neural network is " + str(np.std(scores))
+	print "Average score of combination is " + str(np.mean(scores))
+	print "Standard deviation of combination is " + str(np.std(scores))
 
 
-get_xgboost_score()
-get_neural_network_score()
-get_commbination_score()
+# get_xgboost_score()
+# get_neural_network_score()
+# get_random_forest_score()
+# get_commbination_score()
 
 
 

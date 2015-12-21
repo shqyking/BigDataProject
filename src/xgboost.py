@@ -2,8 +2,6 @@ import graphlab as gl
 import numpy as np
 import os
 
-from hyperopt import fmin, hp, tpe
-
 from sklearn.base import BaseEstimator
 import sys
 import os.path
@@ -72,18 +70,18 @@ class XGBoost(BaseEstimator):
 def run(train_file, test_file, output_file):
     train, labels, test = utils.load_data(train_file, test_file)
 
-    clf = XGBoost(max_iterations=300, max_depth=12, min_child_weight=4.9208250938262745,
+    clf = XGBoost(max_iterations=500, max_depth=12, min_child_weight=4.9208250938262745,
                   row_subsample=.9134478530382129, min_loss_reduction=.5132278416508804,
-                  column_subsample=.730128689911957, step_size=.05)
+                  column_subsample=.730128689911957, step_size=.1)
     clf.fit(train, labels)
     predictions = clf.predict_proba(test)
     utils.save_prediction(output_file, predictions)
 
 if __name__ == '__main__':
-    for i in range(10):
+    for i in range(1):
         train_file = os.path.join('data', 'raw', 'train' + str(i) + '.csv')
         test_file = os.path.join('data', 'raw', 'test' + str(i) + '.csv')
-        output_file = os.path.join('data', 'prediction', 'xgboost' + str(i) + '.csv')
+        output_file = os.path.join('data', 'prediction', 'xgboost_more' + str(i) + '.csv')
         run(train_file, test_file, output_file)
         #run('data/raw/train.csv', 'data/raw/test.csv', 'data/prediction/xgboost.csv')
 
