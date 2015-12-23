@@ -60,11 +60,11 @@ def transfer_labels(lab):
 nb_classes = 9
 
 score_test = np.zeros(file_num)
-res_total_file = path_res + 'res_nn2.txt'
+res_total_file = path_res + 'res_nn3.txt'
 
 for idx in range(0, 10):
 	print'Run the ' + str(idx + 1) + 'th dataset...'
-	pred_id_file = path_res + 'pred_nn2_dataset' + str(idx) + '.csv' 
+	pred_id_file = path_res + 'pred_nn3_dataset' + str(idx) + '.csv' 
 	# load training dataset
 	X, labels = load_dataset(path + filename_train[idx], train=True)
 	X, scaler = preprocess_dataset(X)
@@ -94,6 +94,10 @@ for idx in range(0, 10):
 			print 'nfold: ' + str(i) + '/' + str(nfold) + ' n_bag: ' + str(j) + ' /' + str(n_bag)
 			model = Sequential()
 			# Dense(512) is a fully-connected layer with 512 hidden units and the input data has 93 dims in the first layer
+			model.add(Dense(512, input_shape = (dims,)))
+			model.add(PReLU())
+			model.add(BatchNormalization())
+			model.add(Dropout(0.5))
 			model.add(Dense(512, input_shape = (dims,)))
 			model.add(PReLU())
 			model.add(BatchNormalization())
