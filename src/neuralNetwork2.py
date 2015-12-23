@@ -1,8 +1,6 @@
 import numpy as np
 import pandas as pd
 import csv
-np.random.seed(1111)
-
 from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation
 from keras.layers.advanced_activations import PReLU
@@ -20,6 +18,7 @@ filename_train = ['train0.csv', 'train1.csv', 'train2.csv', 'train3.csv', 'train
 filename_test = ['test0.csv', 'test1.csv', 'test2.csv', 'test3.csv', 'test4.csv', 'test5.csv', 'test6.csv', 'test7.csv', 'test8.csv', 'test9.csv']
 filename_labels = ['label0.csv', 'label1.csv', 'label2.csv', 'label3.csv', 'label4.csv', 'label5.csv', 'label6.csv', 'label7.csv', 'label8.csv', 'label9.csv']
 file_num = 10
+np.random.seed(1111)
 
 def load_dataset(path, train=True):
     df = pd.read_csv(path)
